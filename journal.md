@@ -6,3 +6,5 @@ Since the paper does not directly state these values we need to search the refer
 
 A plot of the deposition height for atoms on the face is shown below:
 ![picture](week1.png)
+and
+![picture](week1b.png)
