@@ -61,27 +61,27 @@ def surface_migration_rate(n, m, T):
     else:
         DeltaE = 0
         
-    k_nm = 1/8*mu*np.exp(-(Esd+DeltsE)/(kb*T))
+    k_nm = 1/8*mu*np.exp(-(Esd+DeltaE)/(kb*T))
     return k_nm
     
-def choose_subset(surface, T):
+def choose_subset(surface, T, mu):
     
     
     counts = dict(zip([1, 2, 3, 4, 5], [0, 0, 0, 0, 0]))
-    neigh = nearest_neigbours(surface)
-    unique, counts = np.unique(neigh, return_counts = True)
+    neigh = nearest_neighbours(surface)
+    unique, counting = np.unique(neigh, return_counts = True)
     index = 0
     for number in unique:
-        counts[number] = counts[0]
+        counts[number] = counting[index]
         index += 1
     
     denom = 0
-    for i in range(5)+1:
+    for i in range(1,6):
         denom += counts[i]*(evaporation_rate(i,T)+impingement_rate(mu, T)+surface_migration_rate(i,i,T))
         
     prob = np.zeros(5)
     for i in range(5):
-        prob[i] = counts[i]*(evaporation_rate(i,T)+impingement_rate(mu, T)+surface_migration_rate(i,i,T))/denom
+        prob[i] = counts[i+1]*(evaporation_rate(i+1,T)+impingement_rate(mu, T)+surface_migration_rate(i+1,i+1,T))/denom
         
     choice = uniform(0,1)
     if choice < prob[0]:
