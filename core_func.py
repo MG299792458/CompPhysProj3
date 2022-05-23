@@ -6,8 +6,22 @@ kb = 1.380649e-23
 
 
 def init_crystal(dims):
+    """Create the initial crystal surface
+    Creates a N x M surface with all lattice points occupied
+    
+    Parameter
+    ---------
+    dims : Tulple or nd.array
+        The dimensions of the initial cristal surface
+    
+    Return
+    ------
+    surface : nd.array
+        The occupied crystal latticle points
+    """
     surface = np.ones(dims)
     return surface
+
 
 def nearest_neighbours(surface):
     dims = surface.shape
@@ -24,6 +38,7 @@ def nearest_neighbours(surface):
                 neighbours[i,j] += 1
     return neighbours
 
+
 def evaporation_rate(n, T):
     '''
     parameters:
@@ -39,10 +54,12 @@ def evaporation_rate(n, T):
     k_minus = mu*np.exp(-n*phi/(kb*T))
     return k_minus
 
+
 def impingement_rate(mu, T):
 
     k_plus = np.exp(mu/(kb*T))*evaporation_rate(3, T)
     return k_plus
+
 
 def surface_migration_rate(n, m, T):
 
@@ -63,6 +80,7 @@ def surface_migration_rate(n, m, T):
 
     k_nm = 1/8*mu*np.exp(-(Esd+DeltaE)/(kb*T))
     return k_nm
+
 
 def choose_subset(surface, T, mu):
     '''choose the number of neighbours each atom in the subset will have in which interaction will occur'''
@@ -97,6 +115,7 @@ def choose_subset(surface, T, mu):
         subset = 5
 
     return subset
+
 
 def interaction(surface, T, mu):
     '''randomly lets interaction take place in chosen subset'''
