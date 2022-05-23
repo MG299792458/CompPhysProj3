@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from random import uniform
+from random import uniform, choice
 '''global parameters'''
 kb = 1.380649e-23
 
@@ -65,6 +65,7 @@ def surface_migration_rate(n, m, T):
     return k_nm
     
 def choose_subset(surface, T, mu):
+    '''choose the number of neighbours each atom in the subset will have in which interaction will occur'''
     
     
     counts = dict(zip([1, 2, 3, 4, 5], [0, 0, 0, 0, 0]))
@@ -83,21 +84,51 @@ def choose_subset(surface, T, mu):
     for i in range(5):
         prob[i] = counts[i+1]*(evaporation_rate(i+1,T)+impingement_rate(mu, T)+surface_migration_rate(i+1,i+1,T))/denom
         
-    choice = uniform(0,1)
-    if choice < prob[0]:
+    rand = uniform(0,1)
+    if rand < prob[0]:
         subset = 1
-    elif choice < prob[0] + prob[1]:
+    elif rand < prob[0] + prob[1]:
         subset = 2
-    elif choice < prob[0] + prob[1] + prob[2]:
+    elif rand < prob[0] + prob[1] + prob[2]:
         subset = 3
-    elif choice < prob[0] + prob[1] + prob[2] + prob[3]:
+    elif rand < prob[0] + prob[1] + prob[2] + prob[3]:
         subset = 4
-    elif choice < prob[0] + prob[1] + prob[2] + +prob[3] + prob[4]:
+    elif rand < prob[0] + prob[1] + prob[2] + +prob[3] + prob[4]:
         subset = 5
         
     return subset
         
+def interaction(surface, T, mu):
+    '''randomly lets interaction take place in chosen subset'''
+    
+   
+    neigh = nearest_neighbours(surface)
+    subset = choose_subset(surface, T, mu)
+    options_x = np.where(neigh==subset)[0]
+    options_y = np.where(neigh==subset)[1]
+    site = choice(range(np.size(options_x)))
+    
+    location = (options_x[site], options_y[site])
+    
+    k_plus = impingement_rate(mu, T)
+    k_minus = evaporation_rate(subset, T)
+    k_nn = surface_migration_rate(subset, subset, T)
+    
+    denom = k_plus + k_minus + k_nn
+    
+    rand = uniform(0,1)
+    if rand < k_plus/denom:
+        surface[location] += 1
+    elif rand < (k_plus+k_minus)/denom:
+        surface[location] -= 1
+    else:
+        '''surface migration still work in progress'''
+        surface = surface
         
+        
+    return surface
+    
+    
         
     
     
