@@ -101,7 +101,7 @@ def choose_subset(surface, T, mu):
 def interaction(surface, T, mu):
     '''randomly lets interaction take place in chosen subset'''
     
-   
+    dims = surface.shape
     neigh = nearest_neighbours(surface)
     subset = choose_subset(surface, T, mu)
     options_x = np.where(neigh==subset)[0]
@@ -122,13 +122,21 @@ def interaction(surface, T, mu):
     elif rand < (k_plus+k_minus)/denom:
         surface[location] -= 1
     else:
-        '''surface migration still work in progress'''
-        surface = surface
+        migrate = choice([(1,1),(1,0),(1,-1),(0,1),(0,-1),(-1,1),(-1,0),(-1,-1)])
+        m = neigh[int(location[0]+migrate[0]-dims[0]*np.floor((location[0]+migrate[0])/dims[0])),
+                  int(location[1]+migrate[1]-dims[1]*np.floor((location[1]+migrate[1])/dims[1]))]
+        n = neigh[location]
+        prob = surface_migration_rate(n, m, T)
+        rand = uniform(0,1)
+        if rand < prob:
+            surface[location] -= 1
+            surface[int(location[0]+migrate[0]-dims[0]*np.floor((location[0]+migrate[0])/dims[0])),
+                  int(location[1]+migrate[1]-dims[1]*np.floor((location[1]+migrate[1])/dims[1]))] += 1
         
         
     return surface
     
-    
+
         
     
     
