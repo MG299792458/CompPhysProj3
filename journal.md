@@ -5,3 +5,4 @@ For now nothing to crazy is happening, in the code the ratios of the addition, e
 Since the paper does not directly state these values we need to search the references for these values.
 
 A plot of the deposition height for atoms on the face is shown below:
+![picture](week1.png)
