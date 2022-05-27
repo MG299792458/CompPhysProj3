@@ -285,17 +285,6 @@ def dislocation_neighbours(surface, face, forward_matrix, backward_matrix):
     if face == 0:
         for i in ranged(dims[0]):
             for j in range(dims[1]):
-                if surface[i,j] <= forward_neighbour[int(i+1-dims[0]*np.floor((i+1)/dims[0])),j]:
-                    neighbours[i,j] += 1
-                if surface[i,j] <= surface[i,int(j+1-dims[1]*np.floor((j+1)/dims[1]))]:
-                    neighbours[i,j] += 1
-                if surface[i,j] <= backward_neighbour[int(i-1-dims[0]*np.floor((i-1)/dims[0])),j]:
-                    neighbours[i,j] += 1
-                if surface[i,j] <= surface[i,int(j-1-dims[1]*np.floor((j-1)/dims[1]))]:
-                    neighbours[i,j] += 1
-    elif face == 1:
-        for i in ranged(dims[0]):
-            for j in range(dims[1]):
                 if surface[i,j] <= surface[int(i+1-dims[0]*np.floor((i+1)/dims[0])),j]:
                     neighbours[i,j] += 1
                 if surface[i,j] <= forward_neighbour[i,int(j+1-dims[1]*np.floor((j+1)/dims[1]))]:
@@ -304,6 +293,17 @@ def dislocation_neighbours(surface, face, forward_matrix, backward_matrix):
                     neighbours[i,j] += 1
                 if surface[i,j] <= backward_neighbour[i,int(j-1-dims[1]*np.floor((j-1)/dims[1]))]:
                     neighbours[i,j] += 1
+    elif face == 1:
+        for i in ranged(dims[0]):
+            for j in range(dims[1]):
+                if surface[i,j] <= forward_neighbour[int(i+1-dims[0]*np.floor((i+1)/dims[0])),j]:
+                    neighbours[i,j] += 1
+                if surface[i,j] <= surface[i,int(j+1-dims[1]*np.floor((j+1)/dims[1]))]:
+                    neighbours[i,j] += 1
+                if surface[i,j] <= backward_neighbour[int(i-1-dims[0]*np.floor((i-1)/dims[0])),j]:
+                    neighbours[i,j] += 1
+                if surface[i,j] <= surface[i,int(j-1-dims[1]*np.floor((j-1)/dims[1]))]:
+                    neighbours[i,j] += 1
     else:
         raise ValueWarning('Value for the face of the dislocation should be either 0 for (010) plane or 1 for the (100) plane')
-
+    return neighbours
