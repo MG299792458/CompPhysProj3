@@ -39,7 +39,7 @@ def nearest_neighbours(surface):
         of the crystal surface that are occupied by an atom
     """
     dims = surface.shape
-    neighbours = np.zeros(dims)
+    neighbours = np.ones(dims)
     for i in range(dims[0]):
         for j in range(dims[1]):
             if surface[i,j] <= surface[int(i+1-dims[0]*np.floor((i+1)/dims[0])),j]:
@@ -127,9 +127,22 @@ def surface_migration_rate(n, m, T):
 
 
 def choose_subset(surface, T, mu):
-    """choose the number of neighbours each atom in the subset will have in which interaction will occur"""
+    """choose the number of neighbours each atom in the subset will have in which interaction will occur
 
+    Parameter
+    ---------
+    surface : nd.array
+        An N x N matrix representing the surface of a crystal
+    T : float
+        Dimensionless temperature
+    mu : float
+        Dimensionless chemical potential
 
+    Return
+    ------
+    subset : 
+
+    """
     counts = dict(zip([1, 2, 3, 4, 5], [0, 0, 0, 0, 0]))
     neigh = nearest_neighbours(surface)
     unique, counting = np.unique(neigh, return_counts = True)
@@ -206,24 +219,24 @@ def dislocation_matrices(dims, face, face_loc, boundaries, b):
     
     Parameter
     ---------
-    dims : int
-        Dimensions of the crystal surface, with the surface dimensions dims x dims 
+    dims : Tulple or nd.array
+        Dimensions of the crystal surface
     face : int --> {0, 1}
         The plain the dislocation line is located in
         Value
         -----
         0 : dislocation line lies in the (100) plain
         1 : dislocation line lies in the (010) plain
-    face_loc : int --> {1:dims-1}
+    face_loc : int --> {1:dims[i]-1}
         The location of the plane the dislocation line lies in. For
         [face_loc] = n, the dislocation is between the (n-1)th and nth
         atom.
-    boundaries : tulple --> [start, end]
+    boundaries : Tulple --> [start, end]
         The boundaries of the dislocation line with [start] < [end]
         Value
         -----
-        start : {0:dims-1}
-        end : {1:dims}
+        start : {0:dims[i]-1}
+        end : {1:dims[i]}
     b : int
         The magnitude of the Burgers vector
         If b=0, there is no dislocation
@@ -237,8 +250,8 @@ def dislocation_matrices(dims, face, face_loc, boundaries, b):
     backward_matrix : nd.array
         Matrix used to create dislocation when looking at the backward neighbour
     """
-    forward_matrix = np.zeros([dims,dims])
-    backward_matrix = np.zeros([dims,dims])
+    forward_matrix = np.zeros(dims)
+    backward_matrix = np.zeros(dims)
     line = np.arange(boundaries[0], boundaries[1], 1, dtype=int)
     dislocation_line = np.ones(boundaries[1]-boundaries[0])*b
     if face == 0:
@@ -278,12 +291,12 @@ def dislocation_neighbours(surface, face, forward_matrix, backward_matrix):
         An N x N matrix representing the number of neighbouring spaces of location (i, j)
         of the crystal surface that are occupied by an atom
     """
-    neighbours = np.zeros(dims)
+    neighbours = np.ones(dims)
     forward_neighbour = surface + forward_matrix
     backward_neighbour = surface + backward_matrix
     
     if face == 0:
-        for i in ranged(dims[0]):
+        for i in range(dims[0]):
             for j in range(dims[1]):
                 if surface[i,j] <= forward_neighbour[int(i+1-dims[0]*np.floor((i+1)/dims[0])),j]:
                     neighbours[i,j] += 1
@@ -294,7 +307,7 @@ def dislocation_neighbours(surface, face, forward_matrix, backward_matrix):
                 if surface[i,j] <= surface[i,int(j-1-dims[1]*np.floor((j-1)/dims[1]))]:
                     neighbours[i,j] += 1
     elif face == 1:
-        for i in ranged(dims[0]):
+        for i in range(dims[0]):
             for j in range(dims[1]):
                 if surface[i,j] <= surface[int(i+1-dims[0]*np.floor((i+1)/dims[0])),j]:
                     neighbours[i,j] += 1
@@ -307,3 +320,75 @@ def dislocation_neighbours(surface, face, forward_matrix, backward_matrix):
     else:
         raise ValueWarning('Value for the face of the dislocation should be either 0 for (010) plane or 1 for the (100) plane')
     return neighbours
+
+
+def nm_migration_rate(loc_n, loc_m, surface, neighbours, T, face, forward_matrix,
+                      backward_matrix):
+    """The migration rate of an atom from a position of n neighbours to m neighbours.
+    When determining m a new surface has to be created where the surface original position of
+    the atom has decreased in hight and the surface of the new position of the atom has
+    increased in hight.
+
+    Parameter
+    ---------
+    loc_n : Tulple
+        The location of the atom on the crystal surface in its original position
+    loc_m : Tulple
+        The location of the atom on the crystal surface in its new position
+    surface : nd.array
+        The surface of the crystal
+    neighbours : nd.array
+        The number of neighbouring spaces of location (i, j) of the crystal surface 
+        that are occupied by an atom
+    T : float
+        Dimensionless temperature
+    face : int --> {0, 1}
+        The plain the dislocation line is located in
+    forward_matrix : nd.array
+        Matrix used to create dislocation when looking at the forward neighbour
+    backward_matrix : nd.array
+        Matrix used to create dislocation when looking at the backward neighbour
+
+    Return
+    ------
+    k_nm : float
+        Dimensionless migration rate
+    """
+    
+    n = neighbours(loc)
+    surface[loc_n] += -1
+    surface[loc_m] += 1
+    m = 1
+    if face == 0:
+        if surface[loc_m] <= forward_neighbour[int(loc_m[0]+1-dims[0]*np.floor((loc_m[0]+1)/dims[0])),loc_m[1]]:
+            m += 1
+        if surface[loc_m] <= surface[loc_m[0],int(loc_m[1]+1-dims[1]*np.floor((loc_m[1]+1)/dims[1]))]:
+            m += 1
+        if surface[loc_m] <= backward_neighbour[int(loc_m[0]-1-dims[0]*np.floor((loc_m[0]-1)/dims[0])),loc_m[1]]:
+            m += 1
+        if surface[loc_m] <= surface[loc_m[0],int(loc_m[1]-1-dims[1]*np.floor((loc_m[1]-1)/dims[1]))]:
+            m += 1
+    else:
+        if surface[loc_m] <= surface[int(loc_m[0]+1-dims[0]*np.floor((loc_m[0]+1)/dims[0])),loc_m[1]]:
+            m += 1
+        if surface[loc_m] <= forward_neighbour[loc_m[0],int(loc_m[1]+1-dims[1]*np.floor((loc_m[1]+1)/dims[1]))]:
+            m += 1
+        if surface[loc_m] <= surface[int(loc_m[0]-1-dims[0]*np.floor((loc_m[0]-1)/dims[0])),loc_m[1]]:
+            m += 1
+        if surface[loc_m] <= backward_neighbour[loc_m[0],int(loc_m[1]-1-dims[1]*np.floor((loc_m[1]-1)/dims[1]))]:
+            m += 1
+
+    if n == 1 or m == 1:
+        Esd = 1/2
+    elif n == 2 or m == 2:
+        Esd = 3/2
+    else:
+        Esd = 5/2
+
+    if m <= n:
+        DeltaE = n-m
+    else:
+        DeltaE = 0
+
+    k_nm = 1/8*np.exp(-(Esd+DeltaE)*T)
+    return k_nm
