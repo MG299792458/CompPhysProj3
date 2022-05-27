@@ -8,12 +8,12 @@ kb = 1.380649e-23
 def init_crystal(dims):
     """Create the initial crystal surface
     Creates a N x M surface with all lattice points occupied
-    
+
     Parameter
     ---------
     dims : Tulple or nd.array
         The dimensions of the initial cristal surface
-    
+
     Return
     ------
     surface : nd.array
@@ -24,6 +24,20 @@ def init_crystal(dims):
 
 
 def nearest_neighbours(surface):
+    """Identifying the number of neighbours of each surface atom using periodic boundary
+    conditions.
+
+    Parameter
+    ---------
+    surface : nd.array
+        An N x N matrix representing the surface of a crystal
+
+    Return
+    ------
+    neighbours : nd.array
+        An N x N matrix representing the number of neighbouring spaces of location (i, j)
+        of the crystal surface that are occupied by an atom
+    """
     dims = surface.shape
     neighbours = np.zeros(dims)
     for i in range(dims[0]):
@@ -54,8 +68,7 @@ def evaporation_rate(n, T):
     k_minus : float/nd.array
         Dimensionless evaporation rate
     """
-
-    k_minus = np.exp(-n*T))
+    k_minus = np.exp(-n*T)
     return k_minus
 
 
@@ -188,5 +201,109 @@ def interaction(surface, T, mu):
 
 
 
+def dislocation_matrices(dims, face, face_loc, boundaries, b):
+    """Defining a single dislocation line on the (001) cystal surface.
+    
+    Parameter
+    ---------
+    dims : int
+        Dimensions of the crystal surface, with the surface dimensions dims x dims 
+    face : int --> {0, 1}
+        The plain the dislocation line is located in
+        Value
+        -----
+        0 : dislocation line lies in the (100) plain
+        1 : dislocation line lies in the (010) plain
+    face_loc : int --> {1:dims-1}
+        The location of the plane the dislocation line lies in. For
+        [face_loc] = n, the dislocation is between the (n-1)th and nth
+        atom.
+    boundaries : tulple --> [start, end]
+        The boundaries of the dislocation line with [start] < [end]
+        Value
+        -----
+        start : {0:dims-1}
+        end : {1:dims}
+    b : int
+        The magnitude of the Burgers vector
+        If b=0, there is no dislocation
+        If b>0, the step will go up
+        If b<0, the step will go down
+    
+    Return
+    ------
+    forward_matrix : nd.array
+        Matrix used to create dislocation when looking at the forward neighbour
+    backward_matrix : nd.array
+        Matrix used to create dislocation when looking at the backward neighbour
+    """
+    forward_matrix = np.zeros([dims,dims])
+    backward_matrix = np.zeros([dims,dims])
+    line = np.arange(boundaries[0], boundaries[1], 1, dtype=int)
+    dislocation_line = np.ones(boundaries[1]-boundaries[0])*b
+    if face == 0:
+        forward_matrix[face_loc, line] = dislocation_line
+        backward_matrix[face_loc-1, line] = -dislocation_line
+    elif face == 1:
+        forward_matrix[line, face_loc] = dislocation_line
+        backward_matrix[line, face_loc-1] = -dislocation_line
+    else:
+        raise ValueWarning('Value for [face] should be either 0 or 1')
+    
+    return forward_matrix, backward_matrix
 
+
+def dislocation_neighbours(surface, face, forward_matrix, backward_matrix):
+    """Identifying the number of neighbours of each surface atom using periodic boundary
+    conditions for a surface with a single dislocation.
+    
+    Parameter
+    ---------
+    surface : nd.array
+        An N x N matrix representing the surface of a crystal
+    face : int --> {0, 1}
+        The plain the dislocation line is located in
+        Value
+        -----
+        0 : dislocation line lies in the (100) plain
+        1 : dislocation line lies in the (010) plain
+    forward_matrix : nd.array
+        Matrix used to create dislocation when looking at the forward neighbour
+    backward_matrix : nd.array
+        Matrix used to create dislocation when looking at the backward neighbour
+    
+    Return
+    ------
+    neighbours : nd.array
+        An N x N matrix representing the number of neighbouring spaces of location (i, j)
+        of the crystal surface that are occupied by an atom
+    """
+    neighbours = np.zeros(dims)
+    forward_neighbour = surface + forward_matrix
+    backward_neighbour = surface + backward_matrix
+    
+    if face == 0:
+        for i in ranged(dims[0]):
+            for j in range(dims[1]):
+                if surface[i,j] <= forward_neighbour[int(i+1-dims[0]*np.floor((i+1)/dims[0])),j]:
+                    neighbours[i,j] += 1
+                if surface[i,j] <= surface[i,int(j+1-dims[1]*np.floor((j+1)/dims[1]))]:
+                    neighbours[i,j] += 1
+                if surface[i,j] <= backward_neighbour[int(i-1-dims[0]*np.floor((i-1)/dims[0])),j]:
+                    neighbours[i,j] += 1
+                if surface[i,j] <= surface[i,int(j-1-dims[1]*np.floor((j-1)/dims[1]))]:
+                    neighbours[i,j] += 1
+    elif face == 1:
+        for i in ranged(dims[0]):
+            for j in range(dims[1]):
+                if surface[i,j] <= surface[int(i+1-dims[0]*np.floor((i+1)/dims[0])),j]:
+                    neighbours[i,j] += 1
+                if surface[i,j] <= forward_neighbour[i,int(j+1-dims[1]*np.floor((j+1)/dims[1]))]:
+                    neighbours[i,j] += 1
+                if surface[i,j] <= surface[int(i-1-dims[0]*np.floor((i-1)/dims[0])),j]:
+                    neighbours[i,j] += 1
+                if surface[i,j] <= backward_neighbour[i,int(j-1-dims[1]*np.floor((j-1)/dims[1]))]:
+                    neighbours[i,j] += 1
+    else:
+        raise ValueWarning('Value for the face of the dislocation should be either 0 for (010) plane or 1 for the (100) plane')
 
