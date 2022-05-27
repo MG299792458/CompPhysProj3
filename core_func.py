@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from random import uniform, choice
-'''global parameters'''
+"""global parameters"""
 kb = 1.380649e-23
 
 
@@ -40,50 +40,81 @@ def nearest_neighbours(surface):
 
 
 def evaporation_rate(n, T):
-    '''
-    parameters:
-        n : number of nearest neigbours
-        T: temperature
+    """The evaporation rate based on the number of neighbours and temperature
 
-    '''
+    Parameter
+    ---------
+    n : int
+        Number of nearest neigbours
+    T : float
+        Dimensionless temperature
 
-    phi = 4.9/3
-    '''not sure what value this is supposed to have'''
-    mu = 5e12
-    '''frequency factor again not sure what it is supposed to be'''
-    k_minus = mu*np.exp(-n*phi/(kb*T))
+    Return
+    ------
+    k_minus : float/nd.array
+        Dimensionless evaporation rate
+    """
+
+    k_minus = np.exp(-n*T))
     return k_minus
 
 
 def impingement_rate(mu, T):
+    """The impingement rate based on the chemical potential and temperature
 
-    k_plus = np.exp(mu/(kb*T))*evaporation_rate(3, T)
+    Parameter
+    ---------
+    mu : float
+        Dimensionless chemical potential
+    T : float
+        Dimensionless temperature
+
+    Return
+    ------
+    k_plus : float
+        Dimensionless impingement rate
+    """
+
+    k_3 = evaporation_rate(3, T)
+    k_plus = np.exp(mu)*k_3
     return k_plus
 
 
 def surface_migration_rate(n, m, T):
+    """
+    Parameter
+    ---------
+    n : int
+        Number of neighbours of the selected atom
+    m : int
+        Number of neighbours of the neighbour of the selected particle
+    T : float
+        Dimensionless temperature
 
-    phi = 4.9/3
-    mu = 5e12
+    Return
+    ------
+    k_nm : float
+        Dimensionless migration rate
+    """
 
     if n == 1 or m == 1:
-        Esd = phi/2
+        Esd = 1/2
     elif n == 2 or m == 2:
-        Esd = 3*phi/2
+        Esd = 3/2
     else:
-        Esd = 5*phi/2
+        Esd = 5/2
 
     if m <= n:
-        DeltaE = (n-m)*phi
+        DeltaE = n-m
     else:
         DeltaE = 0
 
-    k_nm = 1/8*mu*np.exp(-(Esd+DeltaE)/(kb*T))
+    k_nm = 1/8*np.exp(-(Esd+DeltaE)*T)
     return k_nm
 
 
 def choose_subset(surface, T, mu):
-    '''choose the number of neighbours each atom in the subset will have in which interaction will occur'''
+    """choose the number of neighbours each atom in the subset will have in which interaction will occur"""
 
 
     counts = dict(zip([1, 2, 3, 4, 5], [0, 0, 0, 0, 0]))
@@ -118,7 +149,7 @@ def choose_subset(surface, T, mu):
 
 
 def interaction(surface, T, mu):
-    '''randomly lets interaction take place in chosen subset'''
+    """randomly lets interaction take place in chosen subset"""
 
     dims = surface.shape
     neigh = nearest_neighbours(surface)
