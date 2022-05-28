@@ -392,3 +392,51 @@ def nm_migration_rate(loc_n, loc_m, surface, neighbours, T, face, forward_matrix
 
     k_nm = 1/8*np.exp(-(Esd+DeltaE)*T)
     return k_nm
+
+
+def dis_choose_subset(surface, T, mu, face, f_matrix, b_matrix):
+    """choose the number of neighbours each atom in the subset will have in which interaction will occur
+    
+    Parameter
+    ---------
+    surface : nd.array
+        An N x N matrix representing the surface of a crystal
+    T : float
+        Dimensionless temperature
+    mu : float
+        Dimensionless chemical potential
+
+    Return
+    ------
+    subset : 
+
+    """
+    counts = dict(zip([1, 2, 3, 4, 5], [0, 0, 0, 0, 0]))
+    neigh = dislocation_neighbours(surface, face, f_matrix, b_matrix)
+    unique, counting = np.unique(neigh, return_counts = True)
+    index = 0
+    for number in unique:
+        counts[number] = counting[index]
+        index += 1
+
+    denom = 0
+    for i in range(1,6):
+        denom += counts[i]*(evaporation_rate(i,T)+impingement_rate(mu, T)+surface_migration_rate(i,i,T))
+
+    prob = np.zeros(5)
+    for i in range(5):
+        prob[i] = counts[i+1]*(evaporation_rate(i+1,T)+impingement_rate(mu, T)+surface_migration_rate(i+1,i+1,T))/denom
+
+    rand = uniform(0,1)
+    if rand < prob[0]:
+        subset = 1
+    elif rand < prob[0] + prob[1]:
+        subset = 2
+    elif rand < prob[0] + prob[1] + prob[2]:
+        subset = 3
+    elif rand < prob[0] + prob[1] + prob[2] + prob[3]:
+        subset = 4
+    elif rand < prob[0] + prob[1] + prob[2] + +prob[3] + prob[4]:
+        subset = 5
+
+    return subset
