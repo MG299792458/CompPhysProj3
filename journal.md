@@ -20,5 +20,7 @@ Furthermore, the theoretical expected growth regimes were determined through sim
 ![picture](Growth_boundary_between_the_growth_regions.png)
 and the growth rate for 2D nucleation
 ![picture](Growth_rate_2D_nucleation_v1.png)
+Finally, sprial growth was observed in our simulation
+![picture](Spiral_Growth_v1.png)
 
 Now the growth rate at different conditions have to be simulated and compaired to the growth rate predicted from our simulations and from literature.

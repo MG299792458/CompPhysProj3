@@ -532,7 +532,7 @@ class grow_crystal():
                 change_surface[location] -= 1
                 change_surface[(location[0]+migrate[0]) % dims[0], (location[1]+migrate[1]) % dims[1]] +=1
                 new_surface = surface + change_surface
-                for i in scan_loc_matrix:
+                for i in scan_loc_matrix: #crate new neighbour matrix
                     scan_loc1 = ((location[0]+i[0]) % dims[0], (location[1]+i[1]) % dims[1])
                     scan_loc2 = ((migrate[0]+i[0]) % dims[0], (migrate[1]+i[1]) % dims[1])
                     fx_neigh = new_surface + self.fx_matrix
