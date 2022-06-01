@@ -1,3 +1,9 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from random import uniform, choice
+
+
+
 class crystal():
     """The growth of a crystal with dislocations.
 
@@ -320,9 +326,7 @@ class crystal():
     
     
     
-    
-    
-    
+
     
 class grow_crystal():
     """The growth of a crystal with dislocations.
@@ -426,7 +430,21 @@ class grow_crystal():
 
 
     def scan_neighbours(self, surface, fx_neigh, fy_neigh, bx_neigh, by_neigh, loc):
-        """Scanning how many neighbours an atom on the surface has."""
+        """Scanning how many neighbours an atom on the surface has.
+        
+        Parameter
+        ---------
+        surface : nd.array
+        fx_neigh : nd.array
+        fy_neigh : nd.array
+        bx_neigh : nd.array
+        by_neigh : nd.array
+        loc : Tulple
+        
+        Return
+        ------
+        n : int
+        """
         
         dims = self.dims
         n = 1
@@ -443,7 +461,13 @@ class grow_crystal():
 
     def neighbours(self):
         """Identifying the number of neighbours of each surface atom using periodic boundary
-        conditions for a surface with a single dislocation."""
+        conditions for a surface with a single dislocation.
+        
+        Return
+        ------
+        neigh : nd.array
+            Matrix with the number of neighboring atoms for every atom on the crystal surface
+        """
         
         dims = self.dims
         neigh = np.zeros(dims)
@@ -493,7 +517,19 @@ class grow_crystal():
 
 
     def nn_migration_rate(self, n):
-        """as;lkdfj"""
+        """The migration rate of an atom moving from a location of n neighbours to a location of 
+        n neighbours. If migration is not allowed the migration rate is set to 0.
+        
+        Parameter
+        ---------
+        n : int
+            The number of neighbours of the atom
+        
+        Return
+        ------
+        k_nn : float
+            The migration rate
+        """
         if self.set_migration == True:
             if n == 1:
                 Esd = 1/2
@@ -507,7 +543,23 @@ class grow_crystal():
         return k_nn
     
     def nm_migration_rate(self, loc_n, loc_m, neigh):
-        """a;sldkjf"""
+        """The migration rate for an atom moving from location [loc_n] to location [loc_m]. If
+        migration is not allowed the migration rate is set to 0.
+        
+        Parameter
+        ---------
+        loc_n : Tulple
+            The initial coordinate of the atom
+        loc_m : Tulple
+            The new coordinate of the atom
+        neigh : nd.array
+            The number of neighbours of all the atoms in the initial state of the crystal surface
+        
+        Return
+        ------
+        k_nm : float
+            The migration rate between the two coordinates
+        """
         if self.set_migration == True:
             n = neigh[loc_n]
             new_surface = self.surface
@@ -537,7 +589,13 @@ class grow_crystal():
         return k_nm
     
     def choose_subset(self):
-        """;alksdjf;"""
+        """Choose a subset based on the number of neighbours an atom has.
+        
+        Return
+        ------
+        subset : int
+            The number of neighbours all the atoms in the subset have
+        """
         T = self.T
         mu = self.mu
         counts = dict(zip([1, 2, 3, 4, 5], [0, 0, 0, 0, 0]))
@@ -664,6 +722,7 @@ class grow_crystal():
                                                                    by_neigh, scan_loc2) - neigh[scan_loc2]
                 new_neigh = neigh + change_neigh
             else:
+                new_surface = surface
                 new_neigh = neigh
         self.surface = new_surface
         self.neigh = new_neigh
