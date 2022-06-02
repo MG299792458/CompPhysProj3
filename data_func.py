@@ -435,15 +435,22 @@ class grow_crystal():
         Parameter
         ---------
         surface : nd.array
+            Crystal suface
         fx_neigh : nd.array
+            Matrix used to create dislocation when looking at the forward neighbour in the x direction
         fy_neigh : nd.array
+            Matrix used to create dislocation when looking at the forward neighbour in the y direction
         bx_neigh : nd.array
+            Matrix used to create dislocation when looking at the backward neighbour in the x direction
         by_neigh : nd.array
+            Matrix used to create dislocation when looking at the backward neighbour in the y direction
         loc : Tulple
+            Coordinate of the atom
         
         Return
         ------
         n : int
+            Number of neighbours of the atom at coordinate [loc]
         """
         
         dims = self.dims
