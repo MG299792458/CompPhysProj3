@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
 from random import uniform, choice
 
 
@@ -30,7 +31,7 @@ class crystal():
         self.surface = np.ones(self.dims)
         self.surface = self.surface[:,:,np.newaxis]
 
-    
+
     def dislocation_matrices(self, face, face_loc, boundaries, b):
         """Defining a dislocation line on the (001) cystal surface and create matrices to model
         the dislocations when the number of neighbouring atoms is determined.
@@ -78,11 +79,11 @@ class crystal():
         self.num_dislocations += 1
         print('crystal surface with {} dislocations'.format(str(self.num_dislocations)))
 
-    
+
     def num_dislocations(self):
         print('There are {} dislocations'.format(str(self.num_dislocations)))
 
-    
+
     def scan_neighbours(self, surface, fx_neigh, fy_neigh, bx_neigh, by_neigh, loc):
         """Scanning how many neighbours an atom on the surface has.
 
@@ -121,7 +122,7 @@ class crystal():
     def neighbours(self):
         """Identifying the number of neighbours of each surface atom using periodic boundary
         conditions for a surface with a single dislocation.
-        
+
         Return
         ------
         neighbours : nd.array
@@ -236,10 +237,10 @@ class crystal():
 
         k_nm = 1/8*np.exp(-(Esd+DeltaE)*T)
         return k_nm
-    
-    
+
+
     def choose_subset(self):
-        """choose the number of neighbours each atom in the subset will have in which 
+        """choose the number of neighbours each atom in the subset will have in which
         interaction will occur."""
 
         T = self.T
@@ -320,17 +321,17 @@ class crystal():
         #self.surface = np.append(self.surface, new_surface[:,:,np.newaxis], axis=2)
         #self.time += 1
         return new_surface
-    
-    
-    
-    
-    
-    
 
-    
+
+
+
+
+
+
+
 class grow_crystal():
     """The growth of a crystal with dislocations.
-    
+
     Parameter
     ---------
     dims : Tulple
@@ -342,7 +343,7 @@ class grow_crystal():
     set_migration : {True, False}
         If True surface migration is allowed
         If False surface migration is NOT allowed
-    
+
     Return
     ------
     time : int
@@ -369,7 +370,7 @@ class grow_crystal():
         self.N_surface = self.surface[:,:,np.newaxis]
         self.neigh = np.array([])
         self.set_migration = set_migration
-    
+
     def dislocation_matrices(self, face, face_loc, boundaries, b):
         """Defining a dislocation line on the (001) cystal surface and create matrices to model
         the dislocations when the number of neighbouring atoms is determined.
@@ -397,7 +398,7 @@ class grow_crystal():
             If b>0, the step will go up
             If b<0, the step will go down
         """
-        
+
         line = np.arange(boundaries[0], boundaries[1], 1, dtype=int)
         dislocation_line = np.ones(boundaries[1]-boundaries[0])*b
         f_matrix = np.zeros(self.dims)
@@ -417,11 +418,11 @@ class grow_crystal():
         self.num_dislocations += 1
         print('crystal surface with {} dislocations'.format(str(self.num_dislocations)))
 
-    
+
     def num_dislocations(self):
         print('There are {} dislocations'.format(str(self.num_dislocations)))
 
-        
+
     def migration(selft):
         if self.set_migration == True:
             print('Atoms are allowed to migrate')
@@ -431,7 +432,7 @@ class grow_crystal():
 
     def scan_neighbours(self, surface, fx_neigh, fy_neigh, bx_neigh, by_neigh, loc):
         """Scanning how many neighbours an atom on the surface has.
-        
+
         Parameter
         ---------
         surface : nd.array
@@ -446,13 +447,13 @@ class grow_crystal():
             Matrix used to create dislocation when looking at the backward neighbour in the y direction
         loc : Tulple
             Coordinate of the atom
-        
+
         Return
         ------
         n : int
             Number of neighbours of the atom at coordinate [loc]
         """
-        
+
         dims = self.dims
         n = 1
         if surface[loc] <= fx_neigh[(loc[0]+1) % dims[0], loc[1] % dims[1]]:
@@ -469,13 +470,13 @@ class grow_crystal():
     def neighbours(self):
         """Identifying the number of neighbours of each surface atom using periodic boundary
         conditions for a surface with a single dislocation.
-        
+
         Return
         ------
         neigh : nd.array
             Matrix with the number of neighboring atoms for every atom on the crystal surface
         """
-        
+
         dims = self.dims
         neigh = np.zeros(dims)
         surface = self.surface
@@ -493,45 +494,45 @@ class grow_crystal():
 
     def evaporation_rate(self, n):
         """The evaporation rate of an atom based on the number of neighbours and temperature.
-        
+
         Parameter
         ---------
         n : int
             Number of neighbours of an atom
-        
+
         Return
         ------
         k_minus : float
             The evaporation rate of an atom
         """
-        
+
         k_minus = np.exp(-n*self.T)
         return k_minus
 
 
     def impingement_rate(self):
         """The impingement rate of an atom based on the chemical potential and temperature.
-        
+
         Return
         ------
         k_plus : float
             The impingement rate of an atom
         """
-        
+
         k_3 = self.evaporation_rate(3)
         k_plus = np.exp(self.mu)*k_3
         return k_plus
 
 
     def nn_migration_rate(self, n):
-        """The migration rate of an atom moving from a location of n neighbours to a location of 
+        """The migration rate of an atom moving from a location of n neighbours to a location of
         n neighbours. If migration is not allowed the migration rate is set to 0.
-        
+
         Parameter
         ---------
         n : int
             The number of neighbours of the atom
-        
+
         Return
         ------
         k_nn : float
@@ -548,11 +549,11 @@ class grow_crystal():
         else:
             k_nn = 0
         return k_nn
-    
+
     def nm_migration_rate(self, loc_n, loc_m, neigh):
         """The migration rate for an atom moving from location [loc_n] to location [loc_m]. If
         migration is not allowed the migration rate is set to 0.
-        
+
         Parameter
         ---------
         loc_n : Tulple
@@ -561,7 +562,7 @@ class grow_crystal():
             The new coordinate of the atom
         neigh : nd.array
             The number of neighbours of all the atoms in the initial state of the crystal surface
-        
+
         Return
         ------
         k_nm : float
@@ -577,7 +578,7 @@ class grow_crystal():
             bx_neighbour = new_surface + self.bx_matrix
             by_neighbour = new_surface + self.by_matrix
             m = self.scan_neighbours(new_surface, fx_neighbour, fy_neighbour, bx_neighbour, by_neighbour, loc_m)
-            
+
             if n == 1 or m == 1:
                 Esd = 1/2
             elif n == 2 or m == 2:
@@ -594,10 +595,10 @@ class grow_crystal():
         else:
             k_nm = 0
         return k_nm
-    
+
     def choose_subset(self):
         """Choose a subset based on the number of neighbours an atom has.
-        
+
         Return
         ------
         subset : int
@@ -613,7 +614,7 @@ class grow_crystal():
         unique, counting = np.unique(neigh, return_counts = True)
         index = 0
         impingement_rate = self.impingement_rate()
-        
+
         for number in unique:
             counts[number] = counting[index]
             index += 1
@@ -639,11 +640,11 @@ class grow_crystal():
             subset = 4
         elif rand < prob[0] + prob[1] + prob[2] + +prob[3] + prob[4]:
             subset = 5
-        
+
         return subset
-    
+
     def interaction(self, dN):
-        """Simulating an interaction at one location on the crystal surface. The interaction has 
+        """Simulating an interaction at one location on the crystal surface. The interaction has
         two possible outcomes if surface migration is not allowed:
         1. an atom evaporates from the surface
         2. there is an atom impingement
@@ -652,7 +653,7 @@ class grow_crystal():
         2. there is an atom impingement
         3. an atom migrates to a neighbouring location
         4. nothing happens the surface is unchanged
-        
+
         Parameter
         ---------
         dN : int
@@ -688,8 +689,8 @@ class grow_crystal():
                 fy_neigh = new_surface + self.fy_matrix
                 bx_neigh = new_surface + self.bx_matrix
                 by_neigh = new_surface + self.by_matrix
-                change_neigh[scan_loc] = self.scan_neighbours(new_surface, fx_neigh, 
-                                                              fy_neigh, bx_neigh, 
+                change_neigh[scan_loc] = self.scan_neighbours(new_surface, fx_neigh,
+                                                              fy_neigh, bx_neigh,
                                                               by_neigh, scan_loc) - neigh[scan_loc]
             new_neigh = neigh + change_neigh
         elif rand < (k_plus+k_minus)/denom:
@@ -701,8 +702,8 @@ class grow_crystal():
                 fy_neigh = new_surface + self.fy_matrix
                 bx_neigh = new_surface + self.bx_matrix
                 by_neigh = new_surface + self.by_matrix
-                change_neigh[scan_loc] = self.scan_neighbours(new_surface, fx_neigh, 
-                                                              fy_neigh, bx_neigh, 
+                change_neigh[scan_loc] = self.scan_neighbours(new_surface, fx_neigh,
+                                                              fy_neigh, bx_neigh,
                                                               by_neigh, scan_loc) - neigh[scan_loc]
             new_neigh = neigh + change_neigh
         else:
@@ -736,3 +737,29 @@ class grow_crystal():
         self.time += 1
         if self.time % dN == 0: #If it stores too many surface matrices the kernal dies
             self.N_surface = np.append(self.N_surface, new_surface[:,:,np.newaxis], axis=2)
+
+    def plot_surface(self):
+        data = self.surface.copy()
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        cmap = cm.get_cmap('jet')
+
+        (xpos, ypos) = data.shape
+        xs = np.arange(xpos)
+        ys = np.arange(ypos)
+
+        X, Y = np.meshgrid(xs,ys)
+
+        xpos = X.ravel()
+        ypos = Y.ravel()
+        zpos = xpos*0
+
+        dx = np.ones(data.shape)
+        dy = dx
+
+        max_d = np.max(data)
+        min_d = np.min(data)
+
+        # rgba = [cmap((k-min_d)/max_d) for k in data]
+        ax.plot_surface(X, Y, data, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+        plt.show()
