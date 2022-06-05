@@ -29,7 +29,7 @@ for simulation in simulations:
     simulation.rates = sim_rate
     simulation.rates_err = sim_rate_err
     simulation.parameters['mu/T'] = mu_over_T
-    print(simulation.parameters['L'])
+    print(simulation.parameters['L']/simulation.parameters['T'])
 
 
 kplusses = []
@@ -50,5 +50,5 @@ plt.scatter(muTs2, rates2, label=r"T=4")
 plt.legend(frameon=False)
 plt.ylabel(r'$R/k^+$')
 plt.xlabel(r'$\mu /k_b T$')
-plt.savefig('no_dislocations.png')
+plt.savefig('dislocations.png')
 plt.show()
