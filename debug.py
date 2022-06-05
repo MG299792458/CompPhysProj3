@@ -1,55 +1,36 @@
-# %%
-import core_func as cf
 import numpy as np
 import matplotlib.pyplot as plt
-
-# %%
-surface = cf.init_crystal([50,50])
-
-# %%
-neigh = cf.nearest_neighbours(surface)
-
-# %%
-neigh
-
-kb = 1.380649e-23
-T = 3 * 5e12 / 4.9 / kb
-print(T)
+from core_func import *
+from data_func import *
 
 
-# %%
-subset = cf.choose_subset(surface, T, 0)
-'''phi and mu are not set correctly so T has to be chosen very high'''
+growth_array = np.load("Simulation Data/Crystal_growth_mu=1.5_T=2_migration=False_N=1000000_b=0_dislocation=False_v1.npy")
+mu = 1.5
+T = 2
 
-# %%
-for i in range(500):
+kplus = np.exp(mu)*evaporation_rate(3, T)
+print('kplus {:.2f}'.format(kplus))
 
-    surface = cf.interaction(surface, T, 0)
+shape = growth_array.shape
+iter = 1000000
+print(shape)
+
+size_x, size_y, steps = shape
 
 
-# %%
-surface
+iter_interval = iter / steps
+rates = np.array([])
+rates_err = np.array([])
 
-# %%
-neigh = cf.nearest_neighbours(surface)
+for i in range(steps-1):
+    start = i*iter_interval
+    stop = (i+1)*iter_interval
 
-# %%
-neigh
+    rate, err = find_rate(growth_array[:,:,i], growth_array[:,:,i+1], start, stop)
+    rates = np.append(rates, rate)
+    rates_err = np.append(rates_err, err)
 
-# %%
-xr, yr = surface.shape
-x, y = np.arange(xr+1), np.arange(yr+1)
 
-plt.pcolor(x, y, surface)
-plt.gca().set_aspect('equal')
-plt.title("Surface deposition height")
-plt.xlabel(r"x")
-plt.ylabel(r"y")
-plt.colorbar()
-plt.savefig("week1.png")
+intervals = np.arange(steps-1)*iter_interval
+plt.scatter(intervals, rates/kplus)
 plt.show()
-
-# %%
-
-
-

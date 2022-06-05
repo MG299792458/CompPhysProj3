@@ -1,3 +1,4 @@
+from gettext import find
 import numpy as np
 import matplotlib.pyplot as plt
 from random import uniform, choice
@@ -140,7 +141,7 @@ def choose_subset(surface, T, mu):
 
     Return
     ------
-    subset : 
+    subset :
 
     """
     counts = dict(zip([1, 2, 3, 4, 5], [0, 0, 0, 0, 0]))
@@ -216,7 +217,7 @@ def interaction(surface, T, mu):
 
 def dislocation_matrices(dims, face, face_loc, boundaries, b):
     """Defining a single dislocation line on the (001) cystal surface.
-    
+
     Parameter
     ---------
     dims : Tulple or nd.array
@@ -242,7 +243,7 @@ def dislocation_matrices(dims, face, face_loc, boundaries, b):
         If b=0, there is no dislocation
         If b>0, the step will go up
         If b<0, the step will go down
-    
+
     Return
     ------
     forward_matrix : nd.array
@@ -262,14 +263,14 @@ def dislocation_matrices(dims, face, face_loc, boundaries, b):
         backward_matrix[line, face_loc-1] = -dislocation_line
     else:
         raise ValueWarning('Value for [face] should be either 0 or 1')
-    
+
     return forward_matrix, backward_matrix
 
 
 def dislocation_neighbours(surface, face, forward_matrix, backward_matrix):
     """Identifying the number of neighbours of each surface atom using periodic boundary
     conditions for a surface with a single dislocation.
-    
+
     Parameter
     ---------
     surface : nd.array
@@ -284,7 +285,7 @@ def dislocation_neighbours(surface, face, forward_matrix, backward_matrix):
         Matrix used to create dislocation when looking at the forward neighbour
     backward_matrix : nd.array
         Matrix used to create dislocation when looking at the backward neighbour
-    
+
     Return
     ------
     neighbours : nd.array
@@ -294,7 +295,7 @@ def dislocation_neighbours(surface, face, forward_matrix, backward_matrix):
     neighbours = np.ones(dims)
     forward_neighbour = surface + forward_matrix
     backward_neighbour = surface + backward_matrix
-    
+
     if face == 0:
         for i in range(dims[0]):
             for j in range(dims[1]):
@@ -338,7 +339,7 @@ def nm_migration_rate(loc_n, loc_m, surface, neighbours, T, face, forward_matrix
     surface : nd.array
         The surface of the crystal
     neighbours : nd.array
-        The number of neighbouring spaces of location (i, j) of the crystal surface 
+        The number of neighbouring spaces of location (i, j) of the crystal surface
         that are occupied by an atom
     T : float
         Dimensionless temperature
@@ -354,7 +355,7 @@ def nm_migration_rate(loc_n, loc_m, surface, neighbours, T, face, forward_matrix
     k_nm : float
         Dimensionless migration rate
     """
-    
+
     n = neighbours(loc)
     surface[loc_n] += -1
     surface[loc_m] += 1
@@ -396,7 +397,7 @@ def nm_migration_rate(loc_n, loc_m, surface, neighbours, T, face, forward_matrix
 
 def dis_choose_subset(surface, T, mu, face, f_matrix, b_matrix):
     """choose the number of neighbours each atom in the subset will have in which interaction will occur
-    
+
     Parameter
     ---------
     surface : nd.array
@@ -408,7 +409,7 @@ def dis_choose_subset(surface, T, mu, face, f_matrix, b_matrix):
 
     Return
     ------
-    subset : 
+    subset :
 
     """
     counts = dict(zip([1, 2, 3, 4, 5], [0, 0, 0, 0, 0]))
@@ -440,3 +441,57 @@ def dis_choose_subset(surface, T, mu, face, f_matrix, b_matrix):
         subset = 5
 
     return subset
+
+
+def find_avg_height(plane: np.ndarray) -> list[float,float]:
+    """Finds the average height and standard deviation of the height of the plane
+
+    Parameters
+    ----------
+    plane : np.ndarray
+        array describing the height of the current crystal face at point (i,j)
+
+    Returns
+    -------
+    List[float,float]
+        list of average height and standard deviation
+    """
+
+    average_height = np.average(plane)
+    deviation_height = np.std(plane)
+
+    return average_height, deviation_height
+
+
+def find_rate(initial_state: np.ndarray,
+    final_state: np.ndarray,
+    initial_iter: int,
+    final_iter: int
+    ) -> list[float, float]:
+    """Finds the rate of growth of the crystal phase in units of k+
+
+    Parameters
+    ----------
+    initial_state : np.ndarray
+        starting face
+    final_state : np.ndarray
+        ending face
+    initial_iter : int
+        statting iter
+    final_iter : int
+        ending iter
+
+    Returns
+    -------
+    list[float, float]
+        rate and error thereof
+    """
+
+    init_height, init_dev = find_avg_height(initial_state)
+    final_height, final_dev = find_avg_height(final_state)
+
+    iter_elaps = final_iter - initial_iter
+    rate = (final_height - init_height) / iter_elaps
+    error = np.sqrt(iter_elaps**2 * init_dev**2 + iter_elaps**2 * final_dev**2)
+
+    return rate, error
