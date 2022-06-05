@@ -6,6 +6,26 @@ from random import uniform, choice
 kb = 1.380649e-23
 
 
+class Simulation:
+    def __init__(self, file_string):
+
+        data = np.load(file_string)
+        (L,L,steps) = data.shape
+
+        param_string = file_string[:-4].split('\\')[-1]
+        params = param_string.split('_')
+
+        parameters = {}
+        for i in params:
+            pos = i.find('=')
+            parameters[i[:pos]] = float(i[pos+1:])
+
+        parameters['steps'] = steps
+        parameters['L'] = L
+        self.parameters = parameters
+        self.data = data
+
+
 def init_crystal(dims):
     """Create the initial crystal surface
     Creates a N x M surface with all lattice points occupied
@@ -495,3 +515,32 @@ def find_rate(initial_state: np.ndarray,
     error = np.sqrt(iter_elaps**2 * init_dev**2 + iter_elaps**2 * final_dev**2)
 
     return rate, error
+
+
+def compute_rates(simulation: Simulation) -> list[np.ndarray,np.ndarray]:
+
+    tot_steps = simulation.parameters['N']
+    int_surf_amnt = simulation.parameters['steps']
+    data_arr = simulation.data
+
+    temp = simulation.parameters['T']
+    mu = simulation.parameters['mu']
+
+    iter_int = tot_steps / int_surf_amnt
+
+    rates = np.array([], dtype=np.float64)
+    rates_err = np.array([], dtype=np.float64)
+
+    for i in range(int_surf_amnt-1):
+        start = i*iter_int
+        stop = (i+1)*iter_int
+
+        rate, err = find_rate(data_arr[:,:,i], data_arr[:,:,i+1], start, stop)
+        rates = np.append(rates, rate)
+        rates_err = np.append(rates_err, err)
+
+    kplus = np.exp(mu)*evaporation_rate(3, temp)
+    rates = rates / kplus
+    rates_err = rates_err / kplus
+
+    return rates, rates_err
