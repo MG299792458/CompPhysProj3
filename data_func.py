@@ -738,27 +738,37 @@ class grow_crystal():
         if self.time % dN == 0: #If it stores too many surface matrices the kernal dies
             self.N_surface = np.append(self.N_surface, new_surface[:,:,np.newaxis], axis=2)
 
-    def plot_surface(self):
-        data = self.surface.copy()
-        height_min = np.min(data)
+def plot_surface(surface):
+    data = surface.copy()
+    height_min = np.min(data)
 
-        data = data - (height_min-1)
-        height_min = np.min(data)
-        height_max = np.max(data)
-        height = height_max - height_min
-        shape = data.shape
+    data = data - (height_min-1)
+    height_min = (np.min(data)).astype('int')
+    height_max = (np.max(data)).astype('int')
+    height = (height_max - height_min).astype('int')
+    shape = data.shape
 
-        volume = np.ones((shape[0],shape[1],height)) - 1
+    volume = np.ones((shape[0],shape[1],height)) - 1
 
-        for i in shape[0]:
-            for j in shape[1]:
-                fill = data[i,j]
-                volume[i,j,0:fill] += 1
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            fill = data[i,j]
+            volume[i,j,0:int(fill)] += 1
 
-        ax = plt.figure().add_subplot(projection='3d')
-        ax.voxels(volume, edgecolor='k')
+    colors = np.empty(volume.shape + (3,), dtype='object')
+    colors[..., 0] = 1/256
+    colors[..., 1] = 255/256
+    colors[..., 2] = 255/256
 
-        plt.show()
+    x, y, h = np.indices((shape[0]+1, shape[1]+1, height+1))
+
+    for i in range(volume.shape[2]):
+        colors[:,:,i,0] = i/height
+
+    ax = plt.figure().add_subplot(projection='3d')
+    ax.voxels(x,y,h, volume, facecolors=colors, edgecolor='k')
+
+    plt.show()
 
 
 
