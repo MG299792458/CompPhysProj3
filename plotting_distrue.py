@@ -8,7 +8,7 @@ import os.path as osp
 from scipy.optimize import curve_fit as cv
 
 
-simpath = 'Simulation Data\\dislocation false\\T 2'
+simpath = 'Simulation Data\\dislocation false\\T 4'
 path = osp.join(osp.dirname(__file__), simpath)
 
 files = [osp.join(path,file) for file in listdir(path)]
@@ -48,7 +48,7 @@ for simulation in simulations:
     rates2.append(rate)
     err2.append(err)
 
-simpath = 'Simulation Data\\dislocation true\\T 2'
+simpath = 'Simulation Data\\dislocation true\\T 4'
 path = osp.join(osp.dirname(__file__), simpath)
 
 files = [osp.join(path,file) for file in listdir(path)]
@@ -113,11 +113,12 @@ rate_an_spi = growth_analytical_perfect(mu_an, *copt0)
 plt.scatter(muTs2, rates2, label=r"per.")
 plt.scatter(muTsd, ratesd, label=r'spiral' )
 plt.plot(mu_an, rate_an_per, label=r"fit. $\gamma = $"+"{:.2f}".format(copt[0]))
-plt.plot(mu_an, rate_an_spi, label=r"fit. $\gamma = $"+"{:.2f}".format(copt0[0]))
-# plt.errorbar(muTs2, rates2, yerr=err2)
+# plt.plot(mu_an, rate_an_spi, label=r"fit. $\gamma = $"+"{:.2f}".format(copt0[0]))
+plt.errorbar(muTs2, rates2, yerr=err2, linestyle='None')
+plt.errorbar(muTsd, ratesd, yerr=errd, linestyle='None')
 plt.legend(frameon=False)
 plt.ylabel(r'$R/k^+$')
 plt.xlabel(r'$\mu$')
 plt.title('FIg 8 in paper')
-plt.savefig('comparing_spir_perfect_t=2_atoms_fits.png')
+plt.savefig('comparing_spir_perfect_t=4_atoms_fits.png')
 plt.show()

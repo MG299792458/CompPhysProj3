@@ -7,6 +7,8 @@ kb = 1.380649e-23
 
 
 class Simulation:
+    """ Wrapping object for the saved simulations
+    """
     def __init__(self, file_string):
 
         data = np.load(file_string)
@@ -512,7 +514,7 @@ def find_rate(initial_state: np.ndarray,
 
     iter_elaps = final_iter - initial_iter
     rate = (final_height - init_height) / iter_elaps
-    error = np.sqrt(iter_elaps**2 * init_dev**2 + iter_elaps**2 * final_dev**2)
+    error = np.sqrt((1/iter_elaps)**2 * init_dev**2 + (1/iter_elaps)**2 * final_dev**2)
 
     return rate, error
 
@@ -545,6 +547,6 @@ def compute_rates(simulation: Simulation) -> list[np.ndarray,np.ndarray]:
 
     kplus = np.exp(mu)*evaporation_rate(3, temp)
     rates = rates * atoms
-    rates_err = rates_err
+    rates_err = rates_err /kplus /atoms
 
     return rates, rates_err
