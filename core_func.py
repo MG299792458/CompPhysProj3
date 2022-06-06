@@ -520,6 +520,18 @@ def find_rate(initial_state: np.ndarray,
 
 
 def compute_rates(simulation: Simulation) -> list[np.ndarray,np.ndarray]:
+    """ Computes the growth rate over a whole simulation and error by using error propagation
+
+    Parameters
+    ----------
+    simulation : Simulation
+        simulation object made from a saved array
+
+    Returns
+    -------
+    list[np.ndarray,np.ndarray]
+        array of rates and errors thereof
+    """
 
     tot_steps = simulation.parameters['N']
     int_surf_amnt = simulation.parameters['steps'] - 1
