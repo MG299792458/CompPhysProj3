@@ -38,8 +38,8 @@ rates2 = []
 
 for simulation in simulations:
     kplus = simulation.parameters['kplus']
-    rate = np.average(simulation.rates[-20:])
-    err = np.average(simulation.rates_err[-20:])
+    rate = np.average(simulation.rates[:])
+    err = np.average(simulation.rates_err[:])
     mu_over_T = simulation.parameters['mu/T']
 
     muTs2.append(mu_over_T)
