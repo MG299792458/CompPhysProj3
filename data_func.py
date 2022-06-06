@@ -740,26 +740,25 @@ class grow_crystal():
 
     def plot_surface(self):
         data = self.surface.copy()
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        cmap = cm.get_cmap('jet')
+        height_min = np.min(data)
 
-        (xpos, ypos) = data.shape
-        xs = np.arange(xpos)
-        ys = np.arange(ypos)
+        data = data - (height_min-1)
+        height_min = np.min(data)
+        height_max = np.max(data)
+        height = height_max - height_min
+        shape = data.shape
 
-        X, Y = np.meshgrid(xs,ys)
+        volume = np.ones((shape[0],shape[1],height)) - 1
 
-        xpos = X.ravel()
-        ypos = Y.ravel()
-        zpos = xpos*0
+        for i in shape[0]:
+            for j in shape[1]:
+                fill = data[i,j]
+                volume[i,j,0:fill] += 1
 
-        dx = np.ones(data.shape)
-        dy = dx
+        ax = plt.figure().add_subplot(projection='3d')
+        ax.voxels(volume, edgecolor='k')
 
-        max_d = np.max(data)
-        min_d = np.min(data)
-
-        # rgba = [cmap((k-min_d)/max_d) for k in data]
-        ax.plot_surface(X, Y, data, cmap=cm.coolwarm, linewidth=0, antialiased=False)
         plt.show()
+
+
+
