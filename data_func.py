@@ -764,7 +764,7 @@ def plot_surface(surface):
 
 
     ax = plt.figure().add_subplot(projection='3d')
-    ax.voxels(x,y,h, volume, facecolors=colors, edgecolor='k')
+    ax.voxels(volume, facecolors=colors, edgecolor='k')
 
     plt.show()
 
