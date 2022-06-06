@@ -541,6 +541,6 @@ def compute_rates(simulation: Simulation) -> list[np.ndarray,np.ndarray]:
 
     kplus = np.exp(mu)*evaporation_rate(3, temp)
     rates = rates / kplus
-    rates_err = rates_err / kplus
+    rates_err = rates_err / kplus**2
 
     return rates, rates_err
