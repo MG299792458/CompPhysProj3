@@ -88,24 +88,36 @@ for simulation in simulations:
     ratesd.append(rate)
     errd.append(err)
 
-def growth_analytical(mu, gamma):
+def growth_analytical_perfect(mu, gamma):
     rate = (np.pi/3)**(1/3) * mu**(1/6) * (1 - np.exp(-mu))**(2/3)\
          * np.exp(-4/3 * gamma**2 /mu)
 
     return rate
 
-copt, ccov = cv(growth_analytical, muTs2, rates2)
+def growth_analytical_spiral(mu, gamma, phi):
+    rate = (np.pi/3)**(1/3) * mu**(1/6) * (1 - np.exp(-mu))**(2/3)\
+         * np.exp(-4/3 * gamma**2 /mu)
+
+    spir_rate = (0.053*2*mu*phi*(1-np.exp(mu)))
+
+    return rate+spir_rate
+
+
+copt, ccov = cv(growth_analytical_perfect, muTs2, rates2)
+copt0, ccov0 = cv(growth_analytical_spiral, muTsd, ratesd)
 
 mu_an = np.linspace(0,3.5,100)
-rate_an = growth_analytical(mu_an, copt)
+rate_an_per = growth_analytical_perfect(mu_an, copt)
+rate_an_spi = growth_analytical_spiral(mu_an, *copt0)
 
 plt.scatter(muTs2, rates2, label=r"per.")
 plt.scatter(muTsd, ratesd, label=r'spiral' )
-# plt.plot(mu_an, rate_an, label=r"fit. $\gamma = $"+"{:.2f}".format(copt[0]))
+plt.plot(mu_an, rate_an_per, label=r"fit. $\gamma = $"+"{:.2f}".format(copt[0]))
+plt.plot(mu_an, rate_an_spi, label=r"fit. $\gamma = $"+"{:.2f}".format(copt0[0]))
 # plt.errorbar(muTs2, rates2, yerr=err2)
 plt.legend(frameon=False)
 plt.ylabel(r'$R/k^+$')
 plt.xlabel(r'$\mu$')
 plt.title('FIg 8 in paper')
-plt.savefig('comparing_spir_perfect_t=4.png')
+plt.savefig('comparing_spir_perfect_t=4_atoms_fits.png')
 plt.show()

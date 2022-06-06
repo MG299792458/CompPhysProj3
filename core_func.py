@@ -520,7 +520,10 @@ def find_rate(initial_state: np.ndarray,
 def compute_rates(simulation: Simulation) -> list[np.ndarray,np.ndarray]:
 
     tot_steps = simulation.parameters['N']
-    int_surf_amnt = simulation.parameters['steps']
+    int_surf_amnt = simulation.parameters['steps'] - 1
+    length = simulation.parameters['L']
+    atoms = length**2
+
     data_arr = simulation.data
 
     temp = simulation.parameters['T']
@@ -535,12 +538,13 @@ def compute_rates(simulation: Simulation) -> list[np.ndarray,np.ndarray]:
         start = i*iter_int
         stop = (i+1)*iter_int
 
+
         rate, err = find_rate(data_arr[:,:,i], data_arr[:,:,i+1], start, stop)
         rates = np.append(rates, rate)
         rates_err = np.append(rates_err, err)
 
     kplus = np.exp(mu)*evaporation_rate(3, temp)
-    rates = rates / kplus
-    rates_err = rates_err / kplus**2
+    rates = rates * atoms
+    rates_err = rates_err
 
     return rates, rates_err
