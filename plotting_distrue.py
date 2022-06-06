@@ -8,7 +8,7 @@ import os.path as osp
 from scipy.optimize import curve_fit as cv
 
 
-simpath = 'Simulation Data\\dislocation false\\T 4'
+simpath = 'Simulation Data\\dislocation false\\T 2'
 path = osp.join(osp.dirname(__file__), simpath)
 
 files = [osp.join(path,file) for file in listdir(path)]
@@ -48,7 +48,7 @@ for simulation in simulations:
     rates2.append(rate)
     err2.append(err)
 
-simpath = 'Simulation Data\\dislocation true\\T 4'
+simpath = 'Simulation Data\\dislocation true\\T 2'
 path = osp.join(osp.dirname(__file__), simpath)
 
 files = [osp.join(path,file) for file in listdir(path)]
@@ -104,11 +104,11 @@ def growth_analytical_spiral(mu, gamma, phi):
 
 
 copt, ccov = cv(growth_analytical_perfect, muTs2, rates2)
-copt0, ccov0 = cv(growth_analytical_spiral, muTsd, ratesd)
+copt0, ccov0 = cv(growth_analytical_perfect, muTsd, ratesd)
 
 mu_an = np.linspace(0,3.5,100)
 rate_an_per = growth_analytical_perfect(mu_an, copt)
-rate_an_spi = growth_analytical_spiral(mu_an, *copt0)
+rate_an_spi = growth_analytical_perfect(mu_an, *copt0)
 
 plt.scatter(muTs2, rates2, label=r"per.")
 plt.scatter(muTsd, ratesd, label=r'spiral' )
@@ -119,5 +119,5 @@ plt.legend(frameon=False)
 plt.ylabel(r'$R/k^+$')
 plt.xlabel(r'$\mu$')
 plt.title('FIg 8 in paper')
-plt.savefig('comparing_spir_perfect_t=4_atoms_fits.png')
+plt.savefig('comparing_spir_perfect_t=2_atoms_fits.png')
 plt.show()

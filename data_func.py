@@ -756,14 +756,12 @@ def plot_surface(surface):
             volume[i,j,0:int(fill)] += 1
 
     colors = np.empty(volume.shape + (3,), dtype='object')
-    colors[..., 0] = 1/256
+    colors[..., 0] = 40/256
     colors[..., 1] = 255/256
     colors[..., 2] = 255/256
 
     x, y, h = np.indices((shape[0]+1, shape[1]+1, height+1))
 
-    for i in range(volume.shape[2]):
-        colors[:,:,i,0] = i/height
 
     ax = plt.figure().add_subplot(projection='3d')
     ax.voxels(x,y,h, volume, facecolors=colors, edgecolor='k')

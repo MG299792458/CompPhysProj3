@@ -1,23 +1,51 @@
-# Project 3
+# Simulating growth on crystal interfaces
+The contents of this repository allow for the simulation of growth on both perfect and imperfect crystal faces.
 
-For the final project of Computational Physics we encourage you to define your
-own project!
+## Table of contents
+[[_TOC_]]
 
-The only requirement we ask for is that it should be a simulation of a
-physics-related project (but we consider physics-related rather broad, and e.g.
-simulation of biological systems or an engineering problem are also absolutely
-ok).
-We do advise you though to start from a project where there is some existing literature.
-in this way you have a starting point as well as something to compare your simulation to
-for validation.
+## Installation
+The module can be installed using pip or can be imported when the working file is placed in the same directory.
 
-We encourage you to discuss your project idea with us during the time of class, 
-or remotely via the planning issue #1. 
+```python
+from data_func import *
+from core_func import *
+```
+to access the necessary functions and classes.
 
-In any case, you need to fill in a short plan (a few lines) together with a
-reference to literature in the planning issue, *and* have it agreed by us before
-May 27 (i.e. latest two weeks before the presentation).
+## Usage
 
-If you have problems to come up with a good project, we can provide you with
-proven project ideas. But we first want you to try coming up with your own project!
-Having designed your own project will also give a small bonus for the grade.
+```python
+
+#Define physical parameters
+dims = [80, 80]
+T = 3.2
+mu = 1.5
+Disloc = True
+Migration = False
+b = 2
+
+# Define simulation parameters
+N = 100000
+dN = 10000
+
+# Initialise a crystal
+crystal = grow_crystal(dims, mu_i, T, Migration)
+
+# Introduce a defect, this is optional
+face = 0
+face_loc = 40
+boundaries = [0, 40]
+crystal.dislocation_matrices(face, face_loc, boundaries, b)
+
+# Run as many interactions as you want
+for i in range(N):
+    crystal.interaction(dN)
+
+```
+
+## Contributors
+
+@sangersjeroen
+@agefrancke2
+@mwglorie
